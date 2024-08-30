@@ -1,9 +1,15 @@
-// Class that connects to redis client
-// and provides methods to interact with redis
+// Class that connects to redis client and provides methods to interact with it
 
-import { createClient } from 'redis';
+const { promisify } = require('util');
+const { createClient } = require('redis');
 
+/**
+ * Represents a Redis client.
+ * @class
+ */
 class RedisClient {
+// Constructor that creates a new redis client instance
+// and logs any errors that occur
   constructor() {
     // create a new redis client instance
     this.client = createClient();
@@ -19,15 +25,18 @@ class RedisClient {
   }
 
   async get(key) {
-    return this.client.get(key);
+    const getAsync = promisify(this.client.get).bind(this.client);
+    return await getAsync(key);
   }
 
   async set(key, value, duration) {
-    this.client.setex(key, duration, value);
+    const setAsync = promisify(this.client.set).bind(this.client);
+    await setAsync(key, val, 'EX', dur);
   }
 
   async del(key) {
-    this.client.del(key);
+    const delAsync = promisify(this.client.del).bind(this.client);
+    await delAsync(key);
   }
 }
 
