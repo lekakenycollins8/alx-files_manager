@@ -1,51 +1,38 @@
 #!/usr/bin/node
 
-// Class DBclient that connects to the database and provides methods to interact with it
-
 import dotenv from 'dotenv';
-import mongodb from 'mongodb';
+import { MongoClient } from 'mongodb';
 
-const { MongoClient } = mongodb;
-
-// const mongo = require('mongodb');
-
+// Load environment variables from .env file
 dotenv.config();
 
 class DBClient {
-  /**
-     * Constructs a new instance of the database connection.
-     * @constructor
-     */
   constructor() {
-    // define connection url and database name
-    const host = process.env.DB_HOST || 'localhost';
-    const port = process.env.DB_PORT || 27017;
-    const database = process.env.DB_DATABASE || 'files_manager';
-    const url = `mongodb://${host}:${port}`;
-
-    this.client = new MongoClient(url, { useUnifiedTopology: true });
-    this.database = database;
-    this.client.connect()
-      .then(() => console.log('DB connected!'))
-      .catch((err) => console.log('Failed to connect to DB:', err));
+    const host = (process.env.DB_HOST) ? process.env.DB_HOST : 'localhost';
+    const port = (process.env.DB_PORT) ? process.env.DB_PORT : 27017;
+    this.database = (process.env.DB_DATABASE) ? process.env.DB_DATABASE : 'files_manager';
+    const dbUrl = `mongodb://${host}:${port}`;
+    this.connected = false;
+    this.client = new MongoClient(dbUrl, { useUnifiedTopology: true });
+    this.client.connect().then(() => {
+      this.connected = true;
+    }).catch((err) => console.log(err.message));
   }
 
   isAlive() {
-    return this.client.topology && this.client.topology.isConnected();
+    return this.connected;
   }
 
   async nbUsers() {
     await this.client.connect();
-    const db = this.client.db(this.database);
-    const users = db.collection('users');
-    return users.countDocuments();
+    const users = await this.client.db(this.database).collection('users').countDocuments();
+    return users;
   }
 
   async nbFiles() {
     await this.client.connect();
-    const db = this.client.db(this.database);
-    const files = db.collection('files');
-    return files.countDocuments();
+    const users = await this.client.db(this.database).collection('files').countDocuments();
+    return users;
   }
 }
 
