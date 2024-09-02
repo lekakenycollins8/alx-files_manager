@@ -1,7 +1,8 @@
+#!/usr/bin/node
 // Class that connects to redis client and provides methods to interact with it
 
-const { promisify } = require('util');
-const { createClient } = require('redis');
+import { promisify } from 'util';
+import { createClient } from 'redis';
 
 /**
  * Represents a Redis client.
@@ -26,12 +27,13 @@ class RedisClient {
 
   async get(key) {
     const getAsync = promisify(this.client.get).bind(this.client);
+    // eslint-disable-next-line no-return-await
     return await getAsync(key);
   }
 
   async set(key, value, duration) {
     const setAsync = promisify(this.client.set).bind(this.client);
-    await setAsync(key, val, 'EX', dur);
+    await setAsync(key, value, 'EX', duration);
   }
 
   async del(key) {
