@@ -1,4 +1,6 @@
-import { MongoClient } from 'mongodb';
+import mongodb from 'mongodb';
+const { MongoClient } = mongodb;
+
 import dotenv from 'dotenv';
 
 dotenv.config();
